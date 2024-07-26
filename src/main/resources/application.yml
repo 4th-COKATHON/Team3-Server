@@ -1,4 +1,8 @@
+
+
+
 spring:
+
   application:
     name: hackerthon
   profiles:
@@ -7,20 +11,21 @@ spring:
     secret: secretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKeysecretKey
 
   datasource:
-    url: jdbc:mysql://localhost:3306/weather?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://test.cz6kimq8ok8b.ap-northeast-2.rds.amazonaws.com:3306/film?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: admin
     password: abc123456789
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       properties:
         hibernate:
           dialect: org.hibernate.dialect.MySQL8Dialect
           format_sql: true
+
   security:
     oauth2:
       client:
@@ -53,3 +58,5 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+server:
+  port: 9090
