@@ -1,0 +1,29 @@
+[33mcommit e7a9e8c3c797951d229fd2a220646e3dca3c87f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/hw[m[33m)[m
+Author: kimh7537 <kimh7537@gmail.com>
+Date:   Sat Jul 27 02:03:02 2024 +0900
+
+    Feat: social login
+
+[33mcommit 21c3a58b05ab0db2281a11f501902d263823cad4[m
+Author: kimh7537 <kimh7537@gmail.com>
+Date:   Sat Jul 27 01:59:45 2024 +0900
+
+    update
+
+[33mcommit 8924d23f08a0ce2f726618c8a402c12e7c1944dd[m[33m ([m[1;31morigin/yunseopdev[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mdevelop[m[33m)[m
+Author: kimh7537 <kimh7537@gmail.com>
+Date:   Fri Jul 26 21:56:47 2024 +0900
+
+    Fix: build.gradle 변경
+
+[33mcommit 2af7cedec9a4eca7e0514bcdc62c3b71dbd07caa[m
+Author: supsup_hae <zksdbstjq@gmail.com>
+Date:   Fri Jul 26 21:46:54 2024 +0900
+
+    :tada: Initial Commit
+
+[33mcommit 6cee5e5777915b0117a5b6dfe9c8c5915529a520[m
+Author: 윤섭 <54024213+F-UMI@users.noreply.github.com>
+Date:   Fri Jul 26 19:19:45 2024 +0900
+
+    Initial commit
