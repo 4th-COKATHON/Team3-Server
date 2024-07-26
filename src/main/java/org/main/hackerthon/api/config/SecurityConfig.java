@@ -19,39 +19,40 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
-    private final JWTUtil jwtUtil;
+  private final CustomOAuth2UserService customOAuth2UserService;
+  private final CustomSuccessHandler customSuccessHandler;
+  private final JWTUtil jwtUtil;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf((auth) -> auth.disable());
-        http
-                .formLogin((auth) -> auth.disable());
-        http
-                .httpBasic((auth) -> auth.disable());
-        http
-                .logout((auth) -> auth.disable());
-        http
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        http
-                .oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler)
-                );
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/*    ").hasRole(Role.USER.name())
-                        .requestMatchers("/admin").hasRole(Role.ADMIN.name())
-                        .anyRequest().authenticated());
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    http
+        .csrf((auth) -> auth.disable());
+    http
+        .formLogin((auth) -> auth.disable());
+    http
+        .httpBasic((auth) -> auth.disable());
+    http
+        .logout((auth) -> auth.disable());
+    http
+        .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+    http
+        .oauth2Login((oauth2) -> oauth2
+            .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                .userService(customOAuth2UserService))
+            .successHandler(customSuccessHandler)
+        );
+    http
+        .authorizeHttpRequests((auth) -> auth
+            .requestMatchers("/v1/api/login").permitAll()
+            .requestMatchers("/v1/api/s3/upload").authenticated()
+            .requestMatchers("/v1/api/s3/images").authenticated()
+            .requestMatchers("/v1/api/weather").authenticated()
+            .anyRequest().authenticated());
+    http
+        .sessionManagement((session) -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return http.build();
-    }
+    return http.build();
+  }
 }
