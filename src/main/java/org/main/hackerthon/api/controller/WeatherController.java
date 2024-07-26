@@ -5,7 +5,9 @@ import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -29,7 +31,7 @@ public class WeatherController {
 
 
   private final EntityManager em;
-  private String serviceKey = "aPirvKLaMlkMVa50Nl9XLne3d3pSoHN0mC6uwGLbUFI2BUxTYUQXDfLYae3IvBdKa5Zivm+2F25tyIljAwTYNQ==";
+  private String serviceKey = "=aPirvKLaMlkMVa50Nl9XLne3d3pSoHN0mC6uwGLbUFI2BUxTYUQXDfLYae3IvBdKa5Zivm%2B2F25tyIljAwTYNQ%3D%3D";
 
   @GetMapping("/weather")
   @Transactional
@@ -40,33 +42,33 @@ public class WeatherController {
     StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst");
 
     // 2. 요청 시각 조회
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.of(2024, 7, 25, 0, 0, 0);
     String yyyyMMdd = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     int hour = now.getHour();
     int min = now.getMinute();
     if (min <= 30) { // 해당 시각 발표 전에는 자료가 없음 - 이전시각을 기준으로 해야함
       hour -= 1;
     }
-    String hourStr = hour + "00"; // 정시 기준
+    String hourStr = "300"; // 정시 기준
     String nx = Integer.toString(region.getNx());
     String ny = Integer.toString(region.getNy());
     String currentChangeTime = now.format(DateTimeFormatter.ofPattern("yy.MM.dd ")) + hour;
 
     // 기준 시각 조회 자료가 이미 존재하고 있다면 API 요청 없이 기존 자료 그대로 넘김
-    Weather prevWeather = region.getWeather();
-    if (prevWeather != null && prevWeather.getLastUpdateTime() != null) {
-      if (prevWeather.getLastUpdateTime().equals(currentChangeTime)) {
-        log.info("기존 자료를 재사용합니다");
-        WeatherDto dto = WeatherDto.builder()
-            .humid(prevWeather.getHumid())
-            .lastUpdateTime(prevWeather.getLastUpdateTime())
-            .rainAmount(prevWeather.getRainAmount())
-            .temp(prevWeather.getTemp())
-            .weatherCondition(prevWeather.getWeatherCondition())
-            .build();
-        return ResponseEntity.ok(dto);
-      }
-    }
+//    Weather prevWeather = region.getWeather();
+//    if (prevWeather != null && prevWeather.getLastUpdateTime() != null) {
+//      if (prevWeather.getLastUpdateTime().equals(currentChangeTime)) {
+//        log.info("기존 자료를 재사용합니다");
+//        WeatherDto dto = WeatherDto.builder()
+//            .humid(prevWeather.getHumid())
+//            .lastUpdateTime(prevWeather.getLastUpdateTime())
+//            .rainAmount(prevWeather.getRainAmount())
+//            .temp(prevWeather.getTemp())
+//            .weatherCondition(prevWeather.getWeatherCondition())
+//            .build();
+//        return ResponseEntity.ok(dto);
+//      }
+//    }
 
     log.info("API 요청 발송 >>> 지역: {}, 연월일: {}, 시각: {}", region, yyyyMMdd, hourStr);
 
@@ -89,23 +91,27 @@ public class WeatherController {
       Weather weather = getWeather(url, currentChangeTime);
       region.updateRegionWeather(weather); // DB 업데이트
       WeatherDto dto = WeatherDto.builder()
-          .humid(prevWeather.getHumid())
-          .lastUpdateTime(prevWeather.getLastUpdateTime())
-          .rainAmount(prevWeather.getRainAmount())
-          .temp(prevWeather.getTemp())
-          .weatherCondition(prevWeather.getWeatherCondition())
+          .humid(weather.getHumid())
+          .lastUpdateTime(weather.getLastUpdateTime())
+          .rainAmount(weather.getRainAmount())
+          .temp(weather.getTemp())
+          .weatherCondition(weather.getWeatherCondition())
           .build();
       return ResponseEntity.ok(dto);
 
+//    } catch (IOException e) {
+//      WeatherDto dto = WeatherDto.builder()
+//          .humid(prevWeather.getHumid())
+//          .lastUpdateTime(prevWeather.getLastUpdateTime())
+//          .rainAmount(prevWeather.getRainAmount())
+//          .temp(prevWeather.getTemp())
+//          .weatherCondition(prevWeather.getWeatherCondition())
+//          .build();
+//      return ResponseEntity.ok(dto);
+//    }
+
     } catch (IOException e) {
-      WeatherDto dto = WeatherDto.builder()
-          .humid(prevWeather.getHumid())
-          .lastUpdateTime(prevWeather.getLastUpdateTime())
-          .rainAmount(prevWeather.getRainAmount())
-          .temp(prevWeather.getTemp())
-          .weatherCondition(prevWeather.getWeatherCondition())
-          .build();
-      return ResponseEntity.ok(dto);
+      throw new RuntimeException(e);
     }
   }
 
@@ -113,7 +119,7 @@ public class WeatherController {
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     conn.setRequestMethod("GET");
     conn.setRequestProperty("Content-type", "application/json");
-
+    log.error(conn.toString());
     BufferedReader rd;
     if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
       rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -121,6 +127,7 @@ public class WeatherController {
       rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
     }
     StringBuilder sb = new StringBuilder();
+    log.error(rd.toString());
     String line;
     while ((line = rd.readLine()) != null) {
       sb.append(line);
@@ -128,6 +135,14 @@ public class WeatherController {
     rd.close();
     conn.disconnect();
     String data = sb.toString();
+
+    // Log the response data for debugging
+    System.out.println("Response Data: " + data);
+
+    // Check if the response is a valid JSON
+    if (data == null || data.isEmpty() || !data.trim().startsWith("{")) {
+      throw new IOException("Invalid JSON response: " + data);
+    }
 
     //// 응답 수신 완료 ////
     //// 응답 결과를 JSON 파싱 ////
