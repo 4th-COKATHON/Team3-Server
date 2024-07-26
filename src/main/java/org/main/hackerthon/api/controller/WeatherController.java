@@ -21,12 +21,14 @@ import org.main.hackerthon.api.domain.Region;
 import org.main.hackerthon.api.domain.Weather;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
 @Slf4j
+@RequestMapping("v1/api")
 public class WeatherController {
 
 

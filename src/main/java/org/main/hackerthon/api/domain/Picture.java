@@ -9,12 +9,11 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @NoArgsConstructor // 디폴트 생성자
-@Table(name = "picture")
 public class Picture {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long pictureId; // PK
+  private Long id; // PK
 
   @Column(name = "image_path", nullable = false)
   private String imagePath; // 사진 경로
