@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor // 디폴트 생성자
+@Table(name = "user")
 public class User {
 
     @Id

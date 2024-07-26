@@ -23,4 +23,5 @@ public class Weather {
   private String lastUpdateTime; // 마지막 갱신 시각 (시간 단위)
 
   private Double weatherCondition;
+
 }
